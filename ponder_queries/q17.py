@@ -1,5 +1,4 @@
 from ponder_queries import utils
-from pandas import NamedAgg
 import modin.pandas as pd
 
 Q_NUM = 17
@@ -29,7 +28,7 @@ def q():
         lineitem_filtered = lineitem.loc[:, ["L_PARTKEY", "L_QUANTITY"]]
         lineitem_avg = lineitem_filtered.groupby(
             ["L_PARTKEY"], as_index=False, sort=False
-        ).agg(avg=NamedAgg(column="L_QUANTITY", aggfunc="mean"))
+        ).agg({"L_QUANTITY": "mean"}).rename(columns={"L_QUANTITY":"avg"})
         lineitem_avg["avg"] = 0.2 * lineitem_avg["avg"]
         lineitem_avg = lineitem_avg.loc[:, ["L_PARTKEY", "avg"]]
         total = line_part_merge.merge(

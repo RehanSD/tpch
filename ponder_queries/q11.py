@@ -1,5 +1,4 @@
 from ponder_queries import utils
-from pandas import NamedAgg
 
 Q_NUM = 11
 
@@ -40,8 +39,8 @@ def q():
         ps_supp_n_merge = ps_supp_n_merge.loc[:, ["PS_PARTKEY", "TOTAL_COST"]]
         sum_val = ps_supp_n_merge["TOTAL_COST"].sum() * 0.0001
         total = ps_supp_n_merge.groupby(["PS_PARTKEY"], as_index=False, sort=False).agg(
-            VALUE=NamedAgg(column="TOTAL_COST", aggfunc="sum")
-        )
+            {"TOTAL_COST": "sum"}
+        ).rename(columns={"TOTAL_COST":"VALUE"})
         total = total[total["VALUE"] > sum_val]
         total = total.sort_values("VALUE", ascending=False)
         total._query_compiler._dataframe._query_tree.execute()

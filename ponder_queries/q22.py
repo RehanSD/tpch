@@ -1,5 +1,4 @@
 from ponder_queries import utils
-from pandas import NamedAgg
 
 Q_NUM = 22
 
@@ -44,8 +43,8 @@ def q():
         agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
         agg1.columns = ["CNTRYCODE", "NUMCUST"]
         agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
-            TOTACCTBAL=NamedAgg(column="C_ACCTBAL", aggfunc="sum")
-        )
+            {"C_ACCTBAL": "sum"}
+        ).rename(columns={"C_ACCTBAL": "TOTACCTBAL"})
         total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
         total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
         total._query_compiler._dataframe._query_tree.execute()

@@ -110,8 +110,8 @@ def q():
         total = pd.concat([total1, total2])
 
         total = total.groupby(["SUPP_NATION", "CUST_NATION", "L_YEAR"], as_index=False).agg(
-            REVENUE=pd.NamedAgg(column="VOLUME", aggfunc="sum")
-        )
+            {"VOLUME": "sum"}
+        ).rename(columns={"VOLUME":"REVENUE"})
         # skip sort when Mars groupby does sort already
         total = total.sort_values(
             by=["SUPP_NATION", "CUST_NATION", "L_YEAR"], ascending=[True, True, True]

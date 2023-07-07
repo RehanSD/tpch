@@ -1,5 +1,4 @@
 from ponder_queries import utils
-from pandas import NamedAgg
 
 Q_NUM = 13
 
@@ -29,8 +28,8 @@ def q():
         )
         c_o_merged = c_o_merged.loc[:, ["C_CUSTKEY", "O_ORDERKEY"]]
         count_df = c_o_merged.groupby(["C_CUSTKEY"], as_index=False, sort=False).agg(
-            C_COUNT=NamedAgg(column="O_ORDERKEY", aggfunc="count")
-        )
+            {"O_ORDERKEY": "count"}
+        ).rename(columns={"O_ORDERKEY":"C_COUNT"})
         total = count_df.groupby(["C_COUNT"], as_index=False, sort=False).size()
         total.columns = ["C_COUNT", "CUSTDIST"]
         total = total.sort_values(by=["CUSTDIST", "C_COUNT"], ascending=[False, False])

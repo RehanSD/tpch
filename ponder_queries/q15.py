@@ -1,5 +1,5 @@
 from ponder_queries import utils
-from pandas import Timestamp, DateOffset, NamedAgg
+from pandas import Timestamp, DateOffset
 
 Q_NUM = 15
 
@@ -32,8 +32,8 @@ def q():
         lineitem_filtered = lineitem_filtered.loc[:, ["L_SUPPKEY", "REVENUE_PARTS"]]
         revenue_table = (
             lineitem_filtered.groupby("L_SUPPKEY", as_index=False, sort=False)
-            .agg(TOTAL_REVENUE=NamedAgg(column="REVENUE_PARTS", aggfunc="sum"))
-            .rename(columns={"L_SUPPKEY": "SUPPLIER_NO"})
+            .agg({"REVENUE_PARTS": "sum"})
+            .rename(columns={"L_SUPPKEY": "SUPPLIER_NO", "REVENUE_PARTS":"TOTAL_REVENUE"})
         )
         max_revenue = revenue_table["TOTAL_REVENUE"].max()
         revenue_table = revenue_table[revenue_table["TOTAL_REVENUE"] == max_revenue]

@@ -1,4 +1,4 @@
-from pandas_queries import utils
+from ponder_queries import utils
 from pandas import NamedAgg
 
 Q_NUM = 13

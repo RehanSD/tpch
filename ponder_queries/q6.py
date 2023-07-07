@@ -2,7 +2,7 @@ from datetime import datetime
 
 import modin.pandas as pd
 
-from pandas_queries import utils
+from ponder_queries import utils
 
 Q_NUM = 6
 

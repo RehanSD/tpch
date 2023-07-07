@@ -1,4 +1,4 @@
-from pandas_queries import utils
+from ponder_queries import utils
 from pandas import Timestamp
 
 Q_NUM = 10

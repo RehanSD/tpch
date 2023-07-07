@@ -1,5 +1,5 @@
 from datetime import datetime
-from pandas_queries import utils
+from ponder_queries import utils
 
 Q_NUM = 3
 

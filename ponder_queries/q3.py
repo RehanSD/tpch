@@ -44,7 +44,7 @@ def q():
         jn2["TMP"] = jn2.L_EXTENDEDPRICE * (1 - jn2.L_DISCOUNT)
         total = jn2.groupby(
                 ["L_ORDERKEY", "O_ORDERDATE", "O_SHIPPRIORITY"], as_index=False, sort=False
-            )["TMP"].sum().sort_values([by="TMP"], ascending=False)
+            )["TMP"].sum().sort_values(by=["TMP"], ascending=False)
         res = total.loc[:, ["L_ORDERKEY", "TMP", "O_ORDERDATE", "O_SHIPPRIORITY"]]
         res._query_compiler._dataframe._query_tree.execute()
         return res

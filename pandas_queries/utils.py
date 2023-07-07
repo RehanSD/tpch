@@ -34,7 +34,7 @@ def get_query_answer(query: int, base_dir: str = ANSWERS_BASE_DIR) -> PandasDF:
         parse_dates=True,
         infer_datetime_format=True,
     )
-    return answer_df.rename(columns=lambda x: x.strip())
+    return answer_df.rename(columns=lambda x: x.strip().upper())
 
 
 def test_results(q_num: int, result_df: PandasDF):
@@ -48,6 +48,9 @@ def test_results(q_num: int, result_df: PandasDF):
             if t.name == "object":
                 s1 = s1.astype("string").apply(lambda x: x.strip())
                 s2 = s2.astype("string").apply(lambda x: x.strip())
+            if t.name == "int64":
+                s1 = s1.astype("int64")
+                s2 = s2.astype("int64")
 
             pd.testing.assert_series_equal(left=s1, right=s2, check_index=False)
 

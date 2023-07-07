@@ -19,21 +19,18 @@ def q():
     def query():
         nonlocal line_item_ds
         nonlocal orders_ds
-        line_item_ds = line_item_ds()
-        orders_ds = orders_ds()
+        lineitem = line_item_ds()
+        orders = orders_ds()
 
-        lsel = line_item_ds.l_commitdate < line_item_ds.l_receiptdate
-        osel = (orders_ds.o_orderdate < date1) & (orders_ds.o_orderdate >= date2)
-        flineitem = line_item_ds[lsel]
-        forders = orders_ds[osel]
-        jn = forders[forders["o_orderkey"].isin(flineitem["l_orderkey"])]
-        result_df = (
-            jn.groupby("o_orderpriority", as_index=False)["o_orderkey"]
-            .count()
-            .sort_values(["o_orderpriority"])
-            .rename(columns={"o_orderkey": "order_count"})
+        lsel = lineitem.L_COMMITDATE < lineitem.L_RECEIPTDATE
+        osel = (orders.O_ORDERDATE < date1) & (orders.O_ORDERDATE >= date2)
+        flineitem = lineitem[lsel]
+        forders = orders[osel]
+        jn = forders[forders["O_ORDERKEY"].isin(flineitem["L_ORDERKEY"])]
+        total = (
+            jn.groupby("O_ORDERPRIORITY", as_index=False)["O_ORDERKEY"].count().sort_values(["O_ORDERPRIORITY"]).rename(columns={"O_ORDERKEY": "ORDER_COUNT"})
         )
-        return result_df
+        return total
 
     utils.run_query(Q_NUM, query)
 

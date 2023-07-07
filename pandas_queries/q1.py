@@ -1,12 +1,11 @@
-from datetime import datetime
-
 from pandas_queries import utils
 
 Q_NUM = 1
 
 
 def q():
-    VAR1 = datetime(1998, 9, 2)
+    from pandas import Timestamp
+    date = Timestamp("1998-09-02")
 
     lineitem = utils.get_line_item_ds
     # first call one time to cache in case we don't include the IO times
@@ -19,50 +18,54 @@ def q():
         lineitem_filtered = lineitem.loc[
             :,
             [
-                "l_quantity",
-                "l_extendedprice",
-                "l_discount",
-                "l_tax",
-                "l_returnflag",
-                "l_linestatus",
-                "l_shipdate",
-                "l_orderkey",
+                "L_QUANTITY",
+                "L_EXTENDEDPRICE",
+                "L_DISCOUNT",
+                "L_TAX",
+                "L_RETURNFLAG",
+                "L_LINESTATUS",
+                "L_SHIPDATE",
+                "L_ORDERKEY",
             ],
         ]
-        sel = lineitem_filtered.l_shipdate <= VAR1
+        sel = lineitem_filtered.L_SHIPDATE <= date
         lineitem_filtered = lineitem_filtered[sel]
-        lineitem_filtered["sum_qty"] = lineitem_filtered.l_quantity
-        lineitem_filtered["sum_base_price"] = lineitem_filtered.l_extendedprice
-        lineitem_filtered["avg_qty"] = lineitem_filtered.l_quantity
-        lineitem_filtered["avg_price"] = lineitem_filtered.l_extendedprice
-        lineitem_filtered["sum_disc_price"] = lineitem_filtered.l_extendedprice * (
-            1 - lineitem_filtered.l_discount
+        lineitem_filtered["AVG_QTY"] = lineitem_filtered.L_QUANTITY
+        lineitem_filtered["AVG_PRICE"] = lineitem_filtered.L_EXTENDEDPRICE
+        lineitem_filtered["DISC_PRICE"] = lineitem_filtered.L_EXTENDEDPRICE * (
+            1 - lineitem_filtered.L_DISCOUNT
         )
-        lineitem_filtered["sum_charge"] = (
-            lineitem_filtered.l_extendedprice
-            * (1 - lineitem_filtered.l_discount)
-            * (1 + lineitem_filtered.l_tax)
+        lineitem_filtered["CHARGE"] = (
+            lineitem_filtered.L_EXTENDEDPRICE
+            * (1 - lineitem_filtered.L_DISCOUNT)
+            * (1 + lineitem_filtered.L_TAX)
         )
-        lineitem_filtered["avg_disc"] = lineitem_filtered.l_discount
-        lineitem_filtered["count_order"] = lineitem_filtered.l_orderkey
-        gb = lineitem_filtered.groupby(["l_returnflag", "l_linestatus"])
-
+        gb = lineitem_filtered.groupby(["L_RETURNFLAG", "L_LINESTATUS"], as_index=False)[
+            [
+                "L_QUANTITY",
+                "L_EXTENDEDPRICE",
+                "DISC_PRICE",
+                "CHARGE",
+                "AVG_QTY",
+                "AVG_PRICE",
+                "L_DISCOUNT",
+                "L_ORDERKEY",
+            ]
+        ]
         total = gb.agg(
             {
-                "sum_qty": "sum",
-                "sum_base_price": "sum",
-                "sum_disc_price": "sum",
-                "sum_charge": "sum",
-                "avg_qty": "mean",
-                "avg_price": "mean",
-                "avg_disc": "mean",
-                "count_order": "count",
+                "L_QUANTITY": "sum",
+                "L_EXTENDEDPRICE": "sum",
+                "DISC_PRICE": "sum",
+                "CHARGE": "sum",
+                "AVG_QTY": "mean",
+                "AVG_PRICE": "mean",
+                "L_DISCOUNT": "mean",
+                "L_ORDERKEY": "count",
             }
         )
-
-        result_df = total.reset_index().sort_values(["l_returnflag", "l_linestatus"])
-
-        return result_df
+        total = total.sort_values(["L_RETURNFLAG", "L_LINESTATUS"])
+        return total
 
     utils.run_query(Q_NUM, query)
 

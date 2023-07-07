@@ -4,10 +4,6 @@ Q_NUM = 2
 
 
 def q():
-    var1 = 15
-    var2 = "BRASS"
-    var3 = "EUROPE"
-
     region_ds = utils.get_region_ds
     nation_ds = utils.get_nation_ds
     supplier_ds = utils.get_supplier_ds
@@ -27,130 +23,114 @@ def q():
         nonlocal supplier_ds
         nonlocal part_ds
         nonlocal part_supp_ds
-        region_ds = region_ds()
-        nation_ds = nation_ds()
-        supplier_ds = supplier_ds()
-        part_ds = part_ds()
-        part_supp_ds = part_supp_ds()
+        region = region_ds()
+        nation = nation_ds()
+        supplier = supplier_ds()
+        part = part_ds()
+        partsupp = part_supp_ds()
 
-        nation_filtered = nation_ds.loc[:, ["n_nationkey", "n_name", "n_regionkey"]]
-        region_filtered = region_ds[(region_ds["r_name"] == var3)]
-        region_filtered = region_filtered.loc[:, ["r_regionkey"]]
+        nation_filtered = nation.loc[:, ["N_NATIONKEY", "N_NAME", "N_REGIONKEY"]]
+        region_filtered = region[(region["R_NAME"] == "EUROPE")]
+        region_filtered = region_filtered.loc[:, ["R_REGIONKEY"]]
         r_n_merged = nation_filtered.merge(
-            region_filtered, left_on="n_regionkey", right_on="r_regionkey", how="inner"
+            region_filtered, left_on="N_REGIONKEY", right_on="R_REGIONKEY", how="inner"
         )
-        r_n_merged = r_n_merged.loc[:, ["n_nationkey", "n_name"]]
-        supplier_filtered = supplier_ds.loc[
+        r_n_merged = r_n_merged.loc[:, ["N_NATIONKEY", "N_NAME"]]
+        supplier_filtered = supplier.loc[
             :,
             [
-                "s_suppkey",
-                "s_name",
-                "s_address",
-                "s_nationkey",
-                "s_phone",
-                "s_acctbal",
-                "s_comment",
+                "S_SUPPKEY",
+                "S_NAME",
+                "S_ADDRESS",
+                "S_NATIONKEY",
+                "S_PHONE",
+                "S_ACCTBAL",
+                "S_COMMENT",
             ],
         ]
         s_r_n_merged = r_n_merged.merge(
-            supplier_filtered,
-            left_on="n_nationkey",
-            right_on="s_nationkey",
-            how="inner",
+            supplier_filtered, left_on="N_NATIONKEY", right_on="S_NATIONKEY", how="inner"
         )
         s_r_n_merged = s_r_n_merged.loc[
             :,
             [
-                "n_name",
-                "s_suppkey",
-                "s_name",
-                "s_address",
-                "s_phone",
-                "s_acctbal",
-                "s_comment",
+                "N_NAME",
+                "S_SUPPKEY",
+                "S_NAME",
+                "S_ADDRESS",
+                "S_PHONE",
+                "S_ACCTBAL",
+                "S_COMMENT",
             ],
         ]
-        partsupp_filtered = part_supp_ds.loc[
-            :, ["ps_partkey", "ps_suppkey", "ps_supplycost"]
-        ]
+        partsupp_filtered = partsupp.loc[:, ["PS_PARTKEY", "PS_SUPPKEY", "PS_SUPPLYCOST"]]
         ps_s_r_n_merged = s_r_n_merged.merge(
-            partsupp_filtered, left_on="s_suppkey", right_on="ps_suppkey", how="inner"
+            partsupp_filtered, left_on="S_SUPPKEY", right_on="PS_SUPPKEY", how="inner"
         )
         ps_s_r_n_merged = ps_s_r_n_merged.loc[
             :,
             [
-                "n_name",
-                "s_name",
-                "s_address",
-                "s_phone",
-                "s_acctbal",
-                "s_comment",
-                "ps_partkey",
-                "ps_supplycost",
+                "N_NAME",
+                "S_NAME",
+                "S_ADDRESS",
+                "S_PHONE",
+                "S_ACCTBAL",
+                "S_COMMENT",
+                "PS_PARTKEY",
+                "PS_SUPPLYCOST",
             ],
         ]
-        part_filtered = part_ds.loc[:, ["p_partkey", "p_mfgr", "p_size", "p_type"]]
+        part_filtered = part.loc[:, ["P_PARTKEY", "P_MFGR", "P_SIZE", "P_TYPE"]]
         part_filtered = part_filtered[
-            (part_filtered["p_size"] == var1)
-            & (part_filtered["p_type"].str.endswith(var2))
+            (part_filtered["P_SIZE"] == 15)
+            & (part_filtered["P_TYPE"].str.endswith("BRASS"))
         ]
-        part_filtered = part_filtered.loc[:, ["p_partkey", "p_mfgr"]]
+        part_filtered = part_filtered.loc[:, ["P_PARTKEY", "P_MFGR"]]
         merged_df = part_filtered.merge(
-            ps_s_r_n_merged, left_on="p_partkey", right_on="ps_partkey", how="inner"
+            ps_s_r_n_merged, left_on="P_PARTKEY", right_on="PS_PARTKEY", how="inner"
         )
         merged_df = merged_df.loc[
             :,
             [
-                "n_name",
-                "s_name",
-                "s_address",
-                "s_phone",
-                "s_acctbal",
-                "s_comment",
-                "ps_supplycost",
-                "p_partkey",
-                "p_mfgr",
+                "N_NAME",
+                "S_NAME",
+                "S_ADDRESS",
+                "S_PHONE",
+                "S_ACCTBAL",
+                "S_COMMENT",
+                "PS_SUPPLYCOST",
+                "P_PARTKEY",
+                "P_MFGR",
             ],
         ]
-        min_values = merged_df.groupby("p_partkey", as_index=False)[
-            "ps_supplycost"
+        min_values = merged_df.groupby("P_PARTKEY", as_index=False, sort=False)[
+            "PS_SUPPLYCOST"
         ].min()
         min_values.columns = ["P_PARTKEY_CPY", "MIN_SUPPLYCOST"]
         merged_df = merged_df.merge(
             min_values,
-            left_on=["p_partkey", "ps_supplycost"],
+            left_on=["P_PARTKEY", "PS_SUPPLYCOST"],
             right_on=["P_PARTKEY_CPY", "MIN_SUPPLYCOST"],
             how="inner",
         )
-        result_df = merged_df.loc[
+        total = merged_df.loc[
             :,
             [
-                "s_acctbal",
-                "s_name",
-                "n_name",
-                "p_partkey",
-                "p_mfgr",
-                "s_address",
-                "s_phone",
-                "s_comment",
+                "S_ACCTBAL",
+                "S_NAME",
+                "N_NAME",
+                "P_PARTKEY",
+                "P_MFGR",
+                "S_ADDRESS",
+                "S_PHONE",
+                "S_COMMENT",
             ],
         ]
-        result_df = result_df.sort_values(
-            by=[
-                "s_acctbal",
-                "n_name",
-                "s_name",
-                "p_partkey",
-            ],
-            ascending=[
-                False,
-                True,
-                True,
-                True,
-            ],
-        )[:100]
-
-        return result_df
+        total = total.sort_values(
+            by=["S_ACCTBAL", "N_NAME", "S_NAME", "P_PARTKEY"],
+            ascending=[False, True, True, True],
+        )
+        return total
 
     utils.run_query(Q_NUM, query)
 

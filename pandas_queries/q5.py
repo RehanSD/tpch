@@ -32,30 +32,28 @@ def q():
         nonlocal orders_ds
         nonlocal supplier_ds
 
-        region_ds = region_ds()
-        nation_ds = nation_ds()
-        customer_ds = customer_ds()
-        line_item_ds = line_item_ds()
-        orders_ds = orders_ds()
-        supplier_ds = supplier_ds()
+        region = region_ds()
+        nation = nation_ds()
+        customer = customer_ds()
+        lineitem = line_item_ds()
+        orders = orders_ds()
+        supplier = supplier_ds()
 
-        rsel = region_ds.r_name == "ASIA"
-        osel = (orders_ds.o_orderdate >= date1) & (orders_ds.o_orderdate < date2)
-        forders = orders_ds[osel]
-        fregion = region_ds[rsel]
-        jn1 = fregion.merge(nation_ds, left_on="r_regionkey", right_on="n_regionkey")
-        jn2 = jn1.merge(customer_ds, left_on="n_nationkey", right_on="c_nationkey")
-        jn3 = jn2.merge(forders, left_on="c_custkey", right_on="o_custkey")
-        jn4 = jn3.merge(line_item_ds, left_on="o_orderkey", right_on="l_orderkey")
-        jn5 = supplier_ds.merge(
-            jn4,
-            left_on=["s_suppkey", "s_nationkey"],
-            right_on=["l_suppkey", "n_nationkey"],
+        rsel = region.R_NAME == "ASIA"
+        osel = (orders.O_ORDERDATE >= date1) & (orders.O_ORDERDATE < date2)
+        forders = orders[osel]
+        fregion = region[rsel]
+        jn1 = fregion.merge(nation, left_on="R_REGIONKEY", right_on="N_REGIONKEY")
+        jn2 = jn1.merge(customer, left_on="N_NATIONKEY", right_on="C_NATIONKEY")
+        jn3 = jn2.merge(forders, left_on="C_CUSTKEY", right_on="O_CUSTKEY")
+        jn4 = jn3.merge(lineitem, left_on="O_ORDERKEY", right_on="L_ORDERKEY")
+        jn5 = supplier.merge(
+            jn4, left_on=["S_SUPPKEY", "S_NATIONKEY"], right_on=["L_SUPPKEY", "N_NATIONKEY"]
         )
-        jn5["revenue"] = jn5.l_extendedprice * (1.0 - jn5.l_discount)
-        gb = jn5.groupby("n_name", as_index=False)["revenue"].sum()
-        result_df = gb.sort_values("revenue", ascending=False)
-        return result_df
+        jn5["TMP"] = jn5.L_EXTENDEDPRICE * (1.0 - jn5.L_DISCOUNT)
+        gb = jn5.groupby("N_NAME", as_index=False, sort=False)["TMP"].sum()
+        total = gb.sort_values("TMP", ascending=False)
+        return total
 
     utils.run_query(Q_NUM, query)
 

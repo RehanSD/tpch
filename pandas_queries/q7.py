@@ -28,107 +28,96 @@ def q():
         nonlocal orders_ds
         nonlocal supplier_ds
 
-        nation_ds = nation_ds()
-        customer_ds = customer_ds()
-        line_item_ds = line_item_ds()
-        orders_ds = orders_ds()
-        supplier_ds = supplier_ds()
+        nation = nation_ds()
+        customer = customer_ds()
+        lineitem = line_item_ds()
+        orders = orders_ds()
+        supplier = supplier_ds()
 
-        lineitem_filtered = line_item_ds[
-            (line_item_ds["l_shipdate"] >= datetime(1995, 1, 1))
-            & (line_item_ds["l_shipdate"] < datetime(1997, 1, 1))
+        lineitem_filtered = lineitem[
+            (lineitem["L_SHIPDATE"] >= pd.Timestamp("1995-01-01"))
+            & (lineitem["L_SHIPDATE"] < pd.Timestamp("1997-01-01"))
         ]
-        lineitem_filtered["l_year"] = lineitem_filtered["l_shipdate"].dt.year
-        lineitem_filtered["revenue"] = lineitem_filtered["l_extendedprice"] * (
-            1.0 - lineitem_filtered["l_discount"]
+        lineitem_filtered["L_YEAR"] = lineitem_filtered["L_SHIPDATE"].dt.year
+        lineitem_filtered["VOLUME"] = lineitem_filtered["L_EXTENDEDPRICE"] * (
+            1.0 - lineitem_filtered["L_DISCOUNT"]
         )
         lineitem_filtered = lineitem_filtered.loc[
-            :, ["l_orderkey", "l_suppkey", "l_year", "revenue"]
+            :, ["L_ORDERKEY", "L_SUPPKEY", "L_YEAR", "VOLUME"]
         ]
-        supplier_filtered = supplier_ds.loc[:, ["s_suppkey", "s_nationkey"]]
-        orders_filtered = orders_ds.loc[:, ["o_orderkey", "o_custkey"]]
-        customer_filtered = customer_ds.loc[:, ["c_custkey", "c_nationkey"]]
-        n1 = nation_ds[(nation_ds["n_name"] == "FRANCE")].loc[
-            :, ["n_nationkey", "n_name"]
-        ]
-        n2 = nation_ds[(nation_ds["n_name"] == "GERMANY")].loc[
-            :, ["n_nationkey", "n_name"]
-        ]
+        supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY"]]
+        orders_filtered = orders.loc[:, ["O_ORDERKEY", "O_CUSTKEY"]]
+        customer_filtered = customer.loc[:, ["C_CUSTKEY", "C_NATIONKEY"]]
+        n1 = nation[(nation["N_NAME"] == "FRANCE")].loc[:, ["N_NATIONKEY", "N_NAME"]]
+        n2 = nation[(nation["N_NAME"] == "GERMANY")].loc[:, ["N_NATIONKEY", "N_NAME"]]
 
         # ----- do nation 1 -----
         N1_C = customer_filtered.merge(
-            n1, left_on="c_nationkey", right_on="n_nationkey", how="inner"
+            n1, left_on="C_NATIONKEY", right_on="N_NATIONKEY", how="inner"
         )
-        N1_C = N1_C.drop(columns=["c_nationkey", "n_nationkey"]).rename(
-            columns={"n_name": "cust_nation"}
+        N1_C = N1_C.drop(columns=["C_NATIONKEY", "N_NATIONKEY"]).rename(
+            columns={"N_NAME": "CUST_NATION"}
         )
         N1_C_O = N1_C.merge(
-            orders_filtered, left_on="c_custkey", right_on="o_custkey", how="inner"
+            orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="inner"
         )
-        N1_C_O = N1_C_O.drop(columns=["c_custkey", "o_custkey"])
+        N1_C_O = N1_C_O.drop(columns=["C_CUSTKEY", "O_CUSTKEY"])
 
         N2_S = supplier_filtered.merge(
-            n2, left_on="s_nationkey", right_on="n_nationkey", how="inner"
+            n2, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
         )
-        N2_S = N2_S.drop(columns=["s_nationkey", "n_nationkey"]).rename(
-            columns={"n_name": "supp_nation"}
+        N2_S = N2_S.drop(columns=["S_NATIONKEY", "N_NATIONKEY"]).rename(
+            columns={"N_NAME": "SUPP_NATION"}
         )
         N2_S_L = N2_S.merge(
-            lineitem_filtered, left_on="s_suppkey", right_on="l_suppkey", how="inner"
+            lineitem_filtered, left_on="S_SUPPKEY", right_on="L_SUPPKEY", how="inner"
         )
-        N2_S_L = N2_S_L.drop(columns=["s_suppkey", "l_suppkey"])
+        N2_S_L = N2_S_L.drop(columns=["S_SUPPKEY", "L_SUPPKEY"])
 
         total1 = N1_C_O.merge(
-            N2_S_L, left_on="o_orderkey", right_on="l_orderkey", how="inner"
+            N2_S_L, left_on="O_ORDERKEY", right_on="L_ORDERKEY", how="inner"
         )
-        total1 = total1.drop(columns=["o_orderkey", "l_orderkey"])
+        total1 = total1.drop(columns=["O_ORDERKEY", "L_ORDERKEY"])
 
-        # ----- do nation 2 ----- (same as nation 1 section but with nation 2)
+        # ----- do nation 2 -----
         N2_C = customer_filtered.merge(
-            n2, left_on="c_nationkey", right_on="n_nationkey", how="inner"
+            n2, left_on="C_NATIONKEY", right_on="N_NATIONKEY", how="inner"
         )
-        N2_C = N2_C.drop(columns=["c_nationkey", "n_nationkey"]).rename(
-            columns={"n_name": "cust_nation"}
+        N2_C = N2_C.drop(columns=["C_NATIONKEY", "N_NATIONKEY"]).rename(
+            columns={"N_NAME": "CUST_NATION"}
         )
         N2_C_O = N2_C.merge(
-            orders_filtered, left_on="c_custkey", right_on="o_custkey", how="inner"
+            orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="inner"
         )
-        N2_C_O = N2_C_O.drop(columns=["c_custkey", "o_custkey"])
+        N2_C_O = N2_C_O.drop(columns=["C_CUSTKEY", "O_CUSTKEY"])
 
         N1_S = supplier_filtered.merge(
-            n1, left_on="s_nationkey", right_on="n_nationkey", how="inner"
+            n1, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
         )
-        N1_S = N1_S.drop(columns=["s_nationkey", "n_nationkey"]).rename(
-            columns={"n_name": "supp_nation"}
+        N1_S = N1_S.drop(columns=["S_NATIONKEY", "N_NATIONKEY"]).rename(
+            columns={"N_NAME": "SUPP_NATION"}
         )
         N1_S_L = N1_S.merge(
-            lineitem_filtered, left_on="s_suppkey", right_on="l_suppkey", how="inner"
+            lineitem_filtered, left_on="S_SUPPKEY", right_on="L_SUPPKEY", how="inner"
         )
-        N1_S_L = N1_S_L.drop(columns=["s_suppkey", "l_suppkey"])
+        N1_S_L = N1_S_L.drop(columns=["S_SUPPKEY", "L_SUPPKEY"])
 
         total2 = N2_C_O.merge(
-            N1_S_L, left_on="o_orderkey", right_on="l_orderkey", how="inner"
+            N1_S_L, left_on="O_ORDERKEY", right_on="L_ORDERKEY", how="inner"
         )
-        total2 = total2.drop(columns=["o_orderkey", "l_orderkey"])
+        total2 = total2.drop(columns=["O_ORDERKEY", "L_ORDERKEY"])
 
         # concat results
         total = pd.concat([total1, total2])
-        result_df = (
-            total.groupby(["supp_nation", "cust_nation", "l_year"])
-            .revenue.agg("sum")
-            .reset_index()
-        )
-        result_df.columns = ["supp_nation", "cust_nation", "l_year", "revenue"]
 
-        result_df = result_df.sort_values(
-            by=["supp_nation", "cust_nation", "l_year"],
-            ascending=[
-                True,
-                True,
-                True,
-            ],
+        total = total.groupby(["SUPP_NATION", "CUST_NATION", "L_YEAR"], as_index=False).agg(
+            REVENUE=pd.NamedAgg(column="VOLUME", aggfunc="sum")
         )
-        return result_df
+        # skip sort when Mars groupby does sort already
+        total = total.sort_values(
+            by=["SUPP_NATION", "CUST_NATION", "L_YEAR"], ascending=[True, True, True]
+        )
+        return total
 
     utils.run_query(Q_NUM, query)
 

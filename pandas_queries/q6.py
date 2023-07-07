@@ -19,22 +19,22 @@ def q():
 
     def query():
         nonlocal line_item_ds
-        line_item_ds = line_item_ds()
+        lineitem = line_item_ds()
 
-        lineitem_filtered = line_item_ds.loc[
-            :, ["l_quantity", "l_extendedprice", "l_discount", "l_shipdate"]
+        lineitem_filtered = lineitem.loc[
+            :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
         ]
         sel = (
-            (lineitem_filtered.l_shipdate >= date1)
-            & (lineitem_filtered.l_shipdate < date2)
-            & (lineitem_filtered.l_discount >= 0.05)
-            & (lineitem_filtered.l_discount <= 0.07)
-            & (lineitem_filtered.l_quantity < var3)
+            (lineitem_filtered.L_SHIPDATE >= date1)
+            & (lineitem_filtered.L_SHIPDATE < date2)
+            & (lineitem_filtered.L_DISCOUNT >= 0.05)
+            & (lineitem_filtered.L_DISCOUNT <= 0.07)
+            & (lineitem_filtered.L_QUANTITY < var3)
         )
 
         flineitem = lineitem_filtered[sel]
-        result_value = (flineitem.l_extendedprice * flineitem.l_discount).sum()
-        result_df = pd.DataFrame({"revenue": [result_value]})
+        total = (flineitem.L_EXTENDEDPRICE * flineitem.L_DISCOUNT).sum()
+        result_df = pd.DataFrame({"revenue": [total]})
         return result_df
 
     utils.run_query(Q_NUM, query)

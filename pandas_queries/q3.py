@@ -22,38 +22,31 @@ def q():
         nonlocal customer_ds
         nonlocal line_item_ds
         nonlocal orders_ds
-        customer_ds = customer_ds()
-        line_item_ds = line_item_ds()
-        orders_ds = orders_ds()
+        customer = customer_ds()
+        lineitem = line_item_ds()
+        orders = orders_ds()
 
-        lineitem_filtered = line_item_ds.loc[
-            :, ["l_orderkey", "l_extendedprice", "l_discount", "l_shipdate"]
+        lineitem_filtered = lineitem.loc[
+            :, ["L_ORDERKEY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
         ]
-        orders_filtered = orders_ds.loc[
-            :, ["o_orderkey", "o_custkey", "o_orderdate", "o_shippriority"]
+        orders_filtered = orders.loc[
+            :, ["O_ORDERKEY", "O_CUSTKEY", "O_ORDERDATE", "O_SHIPPRIORITY"]
         ]
-        customer_filtered = customer_ds.loc[:, ["c_mktsegment", "c_custkey"]]
-        lsel = lineitem_filtered.l_shipdate > var1
-        osel = orders_filtered.o_orderdate < var2
-        csel = customer_filtered.c_mktsegment == var3
+        customer_filtered = customer.loc[:, ["C_MKTSEGMENT", "C_CUSTKEY"]]
+        lsel = lineitem_filtered.L_SHIPDATE > var1
+        osel = orders_filtered.O_ORDERDATE < var2
+        csel = customer_filtered.C_MKTSEGMENT == var3
         flineitem = lineitem_filtered[lsel]
         forders = orders_filtered[osel]
         fcustomer = customer_filtered[csel]
-        jn1 = fcustomer.merge(forders, left_on="c_custkey", right_on="o_custkey")
-        jn2 = jn1.merge(flineitem, left_on="o_orderkey", right_on="l_orderkey")
-        jn2["revenue"] = jn2.l_extendedprice * (1 - jn2.l_discount)
-
-        total = (
-            jn2.groupby(
-                ["l_orderkey", "o_orderdate", "o_shippriority"], as_index=False
-            )["revenue"]
-            .sum()
-            .sort_values(["revenue"], ascending=False)
-        )
-        result_df = total[:10].loc[
-            :, ["l_orderkey", "revenue", "o_orderdate", "o_shippriority"]
-        ]
-        return result_df
+        jn1 = fcustomer.merge(forders, left_on="C_CUSTKEY", right_on="O_CUSTKEY")
+        jn2 = jn1.merge(flineitem, left_on="O_ORDERKEY", right_on="L_ORDERKEY")
+        jn2["TMP"] = jn2.L_EXTENDEDPRICE * (1 - jn2.L_DISCOUNT)
+        total = jn2.groupby(
+                ["L_ORDERKEY", "O_ORDERDATE", "O_SHIPPRIORITY"], as_index=False, sort=False
+            )["TMP"].sum().sort_values([by="TMP"], ascending=False)
+        res = total.loc[:, ["L_ORDERKEY", "TMP", "O_ORDERDATE", "O_SHIPPRIORITY"]]
+        return res
 
     utils.run_query(Q_NUM, query)
 

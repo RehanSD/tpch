@@ -19,7 +19,7 @@ COLORS = {
     "polars": "#f7c5a0",
     "dask": "#87f7cf",
     "pandas": "#72ccff",
-    # "modin": "#d4a4eb",
+    "Ponder": "#d4a4eb",
 }
 
 # default base template for plot's theme
@@ -189,13 +189,9 @@ if __name__ == "__main__":
     order = pl.DataFrame(
         {
             "solution": [
-                "polars",
                 "duckdb",
                 "pandas",
-                "dask",
-                "spark",
-                "vaex_parquet",
-                "modin",
+                "Ponder",
             ]
         }
     )

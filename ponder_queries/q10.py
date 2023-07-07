@@ -27,7 +27,7 @@ def q():
         lineitem = line_item_ds()
         orders = orders_ds()
         nation = nation_ds()
-        customer = customer_ds
+        customer = customer_ds()
 
         osel = (orders.O_ORDERDATE >= date1) & (orders.O_ORDERDATE < date2)
         lsel = lineitem.L_RETURNFLAG == "R"

@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from pandas import Timestamp
 import modin.pandas as pd
 
 from ponder_queries import utils
@@ -8,8 +8,8 @@ Q_NUM = 6
 
 
 def q():
-    date1 = datetime(1994, 1, 1)
-    date2 = datetime(1995, 1, 1)
+    date1 = Timestamp(datetime(1994, 1, 1))
+    date2 = Timestamp(datetime(1995, 1, 1))
     var3 = 24
 
     line_item_ds = utils.get_line_item_ds

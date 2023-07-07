@@ -110,7 +110,6 @@ def q():
         )
         jn = jn[jnsel]
         total = (jn.L_EXTENDEDPRICE * (1.0 - jn.L_DISCOUNT)).sum()
-        total._query_compiler._dataframe._query_tree.execute()
         return total
 
     utils.run_query(Q_NUM, query)

@@ -29,7 +29,6 @@ def q():
         jn = flineitem.merge(part_filtered, left_on="L_PARTKEY", right_on="P_PARTKEY")
         jn["TMP"] = jn.L_EXTENDEDPRICE * (1.0 - jn.L_DISCOUNT)
         total = jn[jn.P_TYPE.str.startswith(p_type_like)].TMP.sum() * 100 / jn.TMP.sum()
-        total._query_compiler._dataframe._query_tree.execute()
         return total
 
     utils.run_query(Q_NUM, query)

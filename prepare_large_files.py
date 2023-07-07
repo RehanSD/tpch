@@ -8,14 +8,14 @@ h_nation = """
 n_nationkey
 n_name
 n_regionkey
-n_comment""".split(
+n_comment""".upper().split(
     "\n"
 )
 
 h_region = """
 r_regionkey
 r_name
-r_comment""".split(
+r_comment""".upper().split(
     "\n"
 )
 
@@ -28,7 +28,7 @@ p_type
 p_size
 p_container
 p_retailprice
-p_comment""".split(
+p_comment""".upper().split(
     "\n"
 )
 
@@ -39,7 +39,7 @@ s_address
 s_nationkey
 s_phone
 s_acctbal
-s_comment""".split(
+s_comment""".upper().split(
     "\n"
 )
 
@@ -48,7 +48,7 @@ ps_partkey
 ps_suppkey
 ps_availqty
 ps_supplycost
-ps_comment""".split(
+ps_comment""".upper().split(
     "\n"
 )
 
@@ -60,7 +60,7 @@ c_nationkey
 c_phone
 c_acctbal
 c_mktsegment
-c_comment""".split(
+c_comment""".upper().split(
     "\n"
 )
 
@@ -73,7 +73,7 @@ o_orderdate
 o_orderpriority
 o_clerk
 o_shippriority
-o_comment""".split(
+o_comment""".upper().split(
     "\n"
 )
 
@@ -93,7 +93,7 @@ l_commitdate
 l_receiptdate
 l_shipinstruct
 l_shipmode
-comments""".split(
+comments""".upper().split(
     "\n"
 )
 

@@ -1,12 +1,12 @@
 from datetime import datetime
-
 from pandas_queries import utils
 
 Q_NUM = 3
 
 
 def q():
-    var1 = var2 = datetime(1995, 3, 15)
+    from pandas import Timestamp
+    var1 = var2 = Timestamp(datetime(1995, 3, 15))
     var3 = "BUILDING"
 
     customer_ds = utils.get_customer_ds
